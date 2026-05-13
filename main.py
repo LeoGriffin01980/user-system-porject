@@ -1,25 +1,28 @@
-users = [
-    {
-        "username": "leo",
-        "password": "123",
-        "role": "user"
-    },
-    {
-        "username": "ly",
-        "password": "456",
-        "role": "user"
-    },
-    {
-        "username": "01980",
-        "password": "789",
-        "role": "user"
-    },
-    {
-        "username": "admin",
-        "password": "admin123",
-        "role": "admin"
-    }
-]
+import json
+
+
+def save_users(users):
+    with open("users.json","w") as file:
+        json.dump(users,file)
+
+
+def load_users():
+   try:
+       with open("users.json","r") as file:
+            users = json.load(file)
+            return users
+   except:
+       users = [{
+           "username" : "admin",
+           "password" : "admin123",
+           "role" : "admin"
+
+       }]
+       save_users(users)
+       return users
+   
+
+users = load_users()   
 
 
 def register(users, username, password):
@@ -32,6 +35,7 @@ def register(users, username, password):
         "password": password,
         "role": "user"
     })
+    save_users(users)
     print("Register successful")
 
 
@@ -59,6 +63,7 @@ def update_username(users, current_user, new_name):
             print("The username is already in use")
             return
     current_user["username"] = new_name
+    save_users(users)
     print("Username updated successfully")
 
 
@@ -79,11 +84,13 @@ def admin_update_username(users, username, new_name):
         print("The user does not exist")
         return
     target_user["username"] = new_name
+    save_users(users)
     print("Username updated successfully")
 
 
-def update_password(current_user, new_password):
+def update_password(users,current_user, new_password):
     current_user["password"] = new_password
+    save_users(users)
     print("Password updated successfully")
 
 
@@ -91,6 +98,7 @@ def admin_update_password(users, username, new_password):
     for user in users:
         if user["username"] == username:
             user["password"] = new_password
+            save_users(users)
             print("Password updated successfully")
             return
     print("The user does not exist")
@@ -98,6 +106,7 @@ def admin_update_password(users, username, new_password):
 
 def delete_user(users, current_user):
     users.remove(current_user)
+    save_users(users)
     print("User deleted successfully")
 
 
@@ -112,6 +121,7 @@ def admin_delete_user(users, username, current_user):
                 return
             users.remove(user)
             print("User deleted successfully")
+            save_users(users)
             return
     print("The user does not exist")
 
@@ -170,7 +180,7 @@ while True:
             admin_update_password(users, username, new_password)
         else:
             new_password = input("Enter new password: ")
-            update_password(current_user, new_password)
+            update_password(users,current_user, new_password)
 
 
     elif choice == "5":
