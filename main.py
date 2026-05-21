@@ -1,181 +1,7 @@
-import json
-import hashlib
-
-
-def hash_password(password):
-    password = password.encode()
-    return hashlib.sha256(password).hexdigest()
-
-
-def save_users(users):
-    with open("users.json","w") as file:
-        json.dump(users,file)
-
-
-def load_users():
-   try:
-       with open("users.json","r") as file:
-            users = json.load(file)
-            return users
-   except:
-       users = [{
-           "username" : "admin",
-           "password" : hash_password("admin123"),
-           "role" : "admin"
-
-       }]
-       save_users(users)
-       return users
-   
-
+from auth import register,login,show_users,admin_delete_user,admin_update_password,admin_update_username,update_password,update_username,delete_user,admin_unlock_user
+from data import load_users
 users = load_users()
-
-
-def validate_username(username):
-    username = username.strip()
-    if not username:
-        print("username can not be empty")
-        return None
-    if len(username) >8 or len(username) <3:
-        print("username must be 3 to 8 chartes long")
-        return None     
-    return username   
-
-
-def validate_password(password):
-    password = password.strip()
-    if not password:
-        print("password can not be empty")
-        return None
-    if len(password) > 12 or len(password) < 6:
-        print("password must be 6 to 12 chartes long")
-        return None
-    return password        
-
-
-def register(users, username, password):
-    username = validate_username(username)
-    password = validate_password(password)
-    if username is None or password is None:
-        return
-    for user in users:
-        if user["username"] == username:
-            print("The username already exists")
-            return
-    password = hash_password(password)    
-    users.append({
-        "username": username,
-        "password": password,
-        "role": "user"
-    })
-    save_users(users)
-    print("Register successful")
-
-
-def login(users, username, password):
-    username = validate_username(username)
-    password = validate_password(password)
-    if username is None or password is None:
-        return 
-    for user in users:
-        if user["username"] == username:
-            if user["password"] == hash_password(password) :
-                print("Login successful")
-                return user
-            else:
-                print("Password error")
-                return None
-    print("The user does not exist")
-    return None
-
-
-def show_users(users):
-    for user in users:
-        print(f"username: {user['username']} | role: {user['role']}")
-
-
-def update_username(users, current_user, new_name):
-    new_name = validate_username(new_name)
-    if new_name is None:
-        return
-    for user in users:
-        if user["username"] == new_name:
-            print("The username is already in use")
-            return
-    current_user["username"] = new_name
-    save_users(users)
-    print("Username updated successfully")
-
-
-def admin_update_username(users, username, new_name):
-    target_user = None
-    new_name = validate_username(new_name)
-    if new_name is None:
-        return
-    for user in users:
-        if user["username"] == username:
-            target_user = user
-            if user["role"] == "admin":
-                print("You can not update admin username")
-                return
-        if user["username"] == new_name:
-            print("The username is already in use")
-            return
-    if target_user is None:
-        print("The user does not exist")
-        return
-    target_user["username"] = new_name
-    save_users(users)
-    print("Username updated successfully")
-
-
-def update_password(users,current_user,new_password):
-    new_password = validate_password(new_password)
-    if new_password is None:
-        return
-    current_user["password"] = hash_password(new_password) 
-    save_users(users)
-    print("Password updated successfully")
-
-
-def admin_update_password(users, username, new_password):
-    new_password = validate_password(new_password)
-    if new_password is None:
-        return
-    for user in users:
-        if user["username"] == username:
-            user["password"] = hash_password(new_password)
-            save_users(users)
-            print("Password updated successfully")
-            return
-    print("The user does not exist")
-
-
-def delete_user(users, current_user):
-    users.remove(current_user)
-    save_users(users)
-    print("User deleted successfully")
-
-
-def admin_delete_user(users, username, current_user):
-    if current_user["username"] == username:
-        print("You can not delete yourself")
-        return
-    for user in users:
-        if user["username"] == username:
-            if user["role"] == "admin":
-                print("You can not delete another admin")
-                return
-            users.remove(user)
-            print("User deleted successfully")
-            save_users(users)
-            return
-    print("The user does not exist")
-
-
 current_user = None
-
-
 while True:
 
 
@@ -188,6 +14,7 @@ while True:
     print("6. Delete User")
     print("7. Exit")
     print("8. Logout")
+    print("9. unlock")
 
 
     choice = input("Please choose: ")
@@ -273,5 +100,18 @@ while True:
         else:
             current_user = None
             print("Logout successful")
-    else:
-        print("Invalid choice")
+
+
+    elif choice == "9":
+        if current_user is None:
+            print("please login first")
+            continue
+        if current_user["role"] != "admin":
+            print("permission denied")
+            continue
+        username = input("enter username")
+        admin_unlock_user(users,username)
+         
+
+
+    
