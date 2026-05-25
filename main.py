@@ -15,6 +15,7 @@ while True:
     print("7. Exit")
     print("8. Logout")
     print("9. unlock")
+    print("=========================")
 
 
     choice = input("Please choose: ")

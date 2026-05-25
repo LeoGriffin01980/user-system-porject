@@ -39,7 +39,7 @@ def login(users, username, password):
             if user["password"] == hash_password(password) :
                 user["login_fail_count"] = 0
                 save_users(users)    
-                print("Login successful")
+                print(f"Login successful.welcome{user['username']}")
                 return user
             else:
                 user["login_fail_count"] += 1
@@ -55,8 +55,15 @@ def login(users, username, password):
 
 
 def show_users(users):
+    print("==========================")
     for user in users:
-        print(f"username: {user['username']} | role: {user['role']}")
+        print(
+            f"Username: {user['username']} |"
+            f"Role: {user['role']}|"
+            f"Locked: {user['locked']}|"
+            f"Fail Count:{user['login_fail_count']}"
+        )
+    print("==========================")
 
 
 def update_username(users, current_user, new_name):
